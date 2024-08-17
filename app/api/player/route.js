@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { JSDOM } from "jsdom";
+import fs from "fs";
 
 export async function GET(request) {
   const url = new URL(request.url).searchParams.get("url");
@@ -29,6 +30,26 @@ export async function GET(request) {
     const stickyNav = stickyContainer.querySelector(".Nav__Secondary");
     if (!stickyNav) {
       return NextResponse.json({ error: "Sticky navbar not found" });
+    }
+
+    const responsiveWrapper = document.querySelector(".ResponsiveWrapper");
+
+    const images = responsiveWrapper.querySelectorAll(
+      "div.PlayerHeader div.Image__Wrapper"
+    );
+
+    const playerImage = images[1];
+
+    let imageUrl;
+    let name;
+
+    if (playerImage) {
+      const img = playerImage.querySelector("img");
+      name = img.alt;
+      imageUrl = img ? img.src : null;
+      console.log("Image URL:", imageUrl);
+    } else {
+      console.log("Image with Image__Wrapper not found.");
     }
 
     const bioLink = Array.from(stickyNav.querySelectorAll("li a")).find((a) =>
@@ -100,6 +121,8 @@ export async function GET(request) {
     const playerStats = await playerStatsResponse.json();
 
     const combinedPlayerData = {
+      name: name,
+      image: imageUrl,
       ...playerBio,
       playerStats,
     };
