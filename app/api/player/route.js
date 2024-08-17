@@ -101,7 +101,7 @@ export async function GET(request) {
 
     const combinedPlayerData = {
       ...playerBio,
-      ...playerStats,
+      playerStats,
     };
     return NextResponse.json(combinedPlayerData);
   } catch (error) {
