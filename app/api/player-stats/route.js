@@ -7,74 +7,6 @@ export async function GET(request) {
   if (!url) {
     return NextResponse.json({ error: "URL parameter is required" });
   }
-
-  // try {
-  //   // Fetch the profile page
-  //   const res = await fetch(url);
-  //   if (!res.ok) {
-  //     return NextResponse.json({ error: "Failed to fetch the URL" });
-  //   }
-  //   const html = await res.text();
-
-  //   // Parse the profile page using JSDOM
-  //   const dom = new JSDOM(html);
-  //   const document = dom.window.document;
-
-  //   const stickyContainer = document.querySelector(".StickyContainer");
-  //   if (!stickyContainer) {
-  //     return NextResponse.json({ error: "StickyContainer not found" });
-  //   }
-
-  //   console.log("StickyContainer HTML:", stickyContainer.outerHTML); // Log the StickyContainer HTML
-
-  //   // Find the navigation list within StickyContainer
-  //   const stickyNav = stickyContainer.querySelector(".Nav__Secondary");
-  //   if (!stickyNav) {
-  //     return NextResponse.json({ error: "Sticky navbar not found" });
-  //   }
-
-  //   const bioLink = Array.from(stickyNav.querySelectorAll("li a")).find((a) =>
-  //     a.querySelector("span")?.textContent.includes("Bio")
-  //   );
-
-  //   if (!bioLink) {
-  //     return NextResponse.json({ error: "Stats page link not found" });
-  //   }
-
-  //   const bioHref = statsLink.getAttribute("href");
-  //   if (!href) {
-  //     return NextResponse.json({
-  //       error: "Href attribute not found in stats link",
-  //     });
-  //   }
-
-  //   // Construct the absolute URL for the stats page
-  //   const baseUrl = "https://www.espn.com";
-  //   const bioPageUrl = new URL(bioHref, baseUrl).href;
-
-  //   // Find the link with the text or href pointing to the stats page
-  //   const statsLink = Array.from(stickyNav.querySelectorAll("li a")).find((a) =>
-  //     a.querySelector("span")?.textContent.includes("Stats")
-  //   );
-
-  //   if (!statsLink) {
-  //     return NextResponse.json({ error: "Stats page link not found" });
-  //   }
-
-  //   const statsHref = statsLink.getAttribute("href");
-  //   if (!href) {
-  //     return NextResponse.json({
-  //       error: "Href attribute not found in stats link",
-  //     });
-  //   }
-
-  //   // Construct the absolute URL for the stats page
-  //   const statsPageUrl = new URL(statsHref, baseUrl).href;
-
-  //   // Log the URL for debugging
-  //   console.log("Stats Page URL:", statsPageUrl);
-
-  // Fetch the stats page using the found link
   try {
     const statsRes = await fetch(url);
     if (!statsRes.ok) {
@@ -86,14 +18,14 @@ export async function GET(request) {
     const statsDom = new JSDOM(statsHtml);
     const statsDocument = statsDom.window.document;
 
-    // Locate and extract the relevant data from the stats page
-    const titleElement = Array.from(
-      statsDocument.querySelectorAll(".Table__Title")
-    ).find((el) => el.textContent.trim() === "Regular Season Averages");
+    const titleElement = statsDocument.querySelector(".Table__Title");
+    const tableTitle = titleElement
+      ? titleElement.textContent.trim()
+      : "No title";
 
     if (!titleElement) {
       return NextResponse.json({
-        error: "Title 'Regular Season Averages' not found",
+        error: "Cannot find chart",
       });
     }
 
@@ -140,7 +72,7 @@ export async function GET(request) {
     }, {});
 
     return NextResponse.json({
-      title: titleElement.textContent.trim(),
+      title: tableTitle,
       ...lastRowData,
     });
   } catch (error) {
